@@ -1,6 +1,6 @@
 {
   "name": "new-wallet",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Generate BTC, ETH, and SOL wallets from a single mnemonic",
   "bin": {
     "new-wallet": "./index.js"
