@@ -17,6 +17,9 @@
     "tweetnacl": "^1.0.3"
   },
   "keywords": ["wallet", "generate wallet", "btc", "bitcoin", "ETH", "Ethereum", "SOL", "Solana"],
-  "author": "Mohammad Shahbaz Alam",
+  "author": {
+    "name": "Mohammad Shahbaz Alam",
+    "site": "https://mdsbzalam.dev"
+  },
   "license": "MIT"
 }
