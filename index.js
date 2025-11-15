@@ -70,5 +70,4 @@ console.log("Address:", solPubKey);
 console.log("Private Key:", solPrivateKey, "\n");
 
 console.log("🎉 Done!\n");
-// give link to repo for contributions
 console.log("Contributions are welcome! \n\nhttps://github.com/shahbaz17/new-wallet\n\n");
