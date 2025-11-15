@@ -8,6 +8,7 @@ import { ethers } from "ethers";
 import { derivePath as deriveEd25519 } from "ed25519-hd-key";
 import nacl from "tweetnacl";
 import { PublicKey } from "@solana/web3.js";
+import bs58 from "bs58";
 
 const bip32 = BIP32Factory(ecc);
 
@@ -61,7 +62,7 @@ const solPath = `m/44'/501'/0'/0'`;
 const solDerived = deriveEd25519(solPath, seed.toString("hex"));
 
 const solKeypair = nacl.sign.keyPair.fromSeed(solDerived.key);
-const solPrivateKey = Buffer.from(solKeypair.secretKey).toString("hex").slice(0, 64);
+const solPrivateKey = bs58.encode(solKeypair.secretKey);
 const solPubKey = new PublicKey(solKeypair.publicKey).toBase58();
 
 console.log("SOLANA");
