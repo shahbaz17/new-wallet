@@ -24,18 +24,16 @@ const seed = await bip39.mnemonicToSeed(mnemonic);
 const root = bip32.fromSeed(seed);
 
 // --------------------------------------------------------
-// 2. BTC (SegWit P2SH-P2WPKH)
-// Path: m/49'/0'/0'/0/0
+// 2. BTC (SegWit P2WPKH)
+// Path: m/84'/0'/0'/0/0
 // --------------------------------------------------------
-const btcPath = `m/49'/0'/0'/0/0`;
+const btcPath = `m/84'/0'/0'/0/0`;
 const btcChild = root.derivePath(btcPath);
 
-const btcAddress = payments.p2sh({
-  redeem: payments.p2wpkh({
+const btcAddress = payments.p2wpkh({
     pubkey: btcChild.publicKey,
     network: networks.bitcoin
-  })
-}).address;
+  }).address;
 
 console.log("BTC (SegWit)");
 console.log("Address:", btcAddress);
