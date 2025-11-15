@@ -31,9 +31,9 @@ const btcPath = `m/84'/0'/0'/0/0`;
 const btcChild = root.derivePath(btcPath);
 
 const btcAddress = payments.p2wpkh({
-    pubkey: btcChild.publicKey,
-    network: networks.bitcoin
-  }).address;
+  pubkey: btcChild.publicKey,
+  network: networks.bitcoin
+}).address;
 
 console.log("BTC (SegWit)");
 console.log("Address:", btcAddress);
@@ -61,7 +61,7 @@ const solPath = `m/44'/501'/0'/0'`;
 const solDerived = deriveEd25519(solPath, seed.toString("hex"));
 
 const solKeypair = nacl.sign.keyPair.fromSeed(solDerived.key);
-const solPrivateKey = Buffer.from(solKeypair.secretKey).toString("hex");
+const solPrivateKey = Buffer.from(solKeypair.secretKey).toString("hex").slice(0, 64);
 const solPubKey = new PublicKey(solKeypair.publicKey).toBase58();
 
 console.log("SOLANA");
@@ -69,3 +69,5 @@ console.log("Address:", solPubKey);
 console.log("Private Key:", solPrivateKey, "\n");
 
 console.log("🎉 Done!\n");
+// give link to repo for contributions
+console.log("Contributions are welcome! \n\nhttps://github.com/shahbaz17/new-wallet\n\n");
