@@ -8,7 +8,7 @@ import { walletBTC } from "./src/btc.js";
 import { walletETH } from "./src/eth.js";
 import { walletSOL } from "./src/sol.js";
 
-const VERSION = "2.1.0";
+const VERSION = "2.2.0";
 
 const HELP_TEXT = `
 new-wallet v${VERSION}
