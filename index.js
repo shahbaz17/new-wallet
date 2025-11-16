@@ -3,71 +3,141 @@
 import bip39 from "bip39";
 import BIP32Factory from "bip32";
 import * as ecc from "tiny-secp256k1";
-import { payments, networks } from "bitcoinjs-lib";
-import { ethers } from "ethers";
-import { derivePath as deriveEd25519 } from "ed25519-hd-key";
-import nacl from "tweetnacl";
-import { PublicKey } from "@solana/web3.js";
-import bs58 from "bs58";
+
+import { walletBTC } from "./src/btc.js";
+import { walletETH } from "./src/eth.js";
+import { walletSOL } from "./src/sol.js";
+
+const VERSION = "2.2.0";
+
+const HELP_TEXT = `
+new-wallet v${VERSION}
+
+Generate BTC, ETH, and SOL wallets from a single mnemonic.
+
+USAGE:
+  new-wallet [OPTIONS]
+
+OPTIONS:
+  -c, --chain <chain>    Generate wallet for specific chain only (btc, eth, sol)
+  -h, --help            Show this help message
+  -v, --version         Show version number
+
+EXAMPLES:
+  new-wallet              Generate wallets for all chains
+  new-wallet -c btc       Generate Bitcoin wallet only
+  new-wallet --chain eth  Generate Ethereum wallet only
+
+⚠️  SECURITY WARNING:
+  - Never share your mnemonic or private keys
+  - Store them securely offline
+  - This tool is for educational purposes
+  - Use at your own risk
+
+Repository: https://github.com/shahbaz17/new-wallet
+`;
+
+const args = process.argv.slice(2);
+const hasFlag = (flag) => args.includes(flag);
+const getFlag = (flag) => {
+  const i = args.indexOf(flag);
+  return i !== -1 ? args[i + 1] : null;
+};
+
+// Handle help flag
+if (hasFlag("-h") || hasFlag("--help")) {
+  console.log(HELP_TEXT);
+  process.exit(0);
+}
+
+// Handle version flag
+if (hasFlag("-v") || hasFlag("--version")) {
+  console.log(`v${VERSION}`);
+  process.exit(0);
+}
+
+const chain = getFlag("--chain") || getFlag("-c");
+
+// Validate chain if provided
+if (chain && !["btc", "eth", "sol"].includes(chain.toLowerCase())) {
+  console.error(`\n❌ Error: Unknown chain "${chain}"`);
+  console.error("   Supported chains: btc, eth, sol\n");
+  console.error("   Run 'new-wallet --help' for more information.\n");
+  process.exit(1);
+}
 
 const bip32 = BIP32Factory(ecc);
 
-console.log("\n🚀 Generating New Wallet...\n");
+console.log("\n🥳 Your Self-Custodial Wallets are Ready...\n");
 
 // --------------------------------------------------------
-// 1. MNEMONIC + SEED
+// 1. MNEMONIC
 // --------------------------------------------------------
-const mnemonic = bip39.generateMnemonic(128);
-console.log("Mnemonic:");
-console.log(mnemonic, "\n");
+let mnemonic, seed, root;
 
-const seed = await bip39.mnemonicToSeed(mnemonic);
-const root = bip32.fromSeed(seed);
+try {
+  mnemonic = bip39.generateMnemonic(128);
+  console.log("Mnemonic:");
+  console.log(mnemonic, "\n");
 
-// --------------------------------------------------------
-// 2. BTC (SegWit P2WPKH)
-// Path: m/84'/0'/0'/0/0
-// --------------------------------------------------------
-const btcPath = `m/84'/0'/0'/0/0`;
-const btcChild = root.derivePath(btcPath);
+  seed = await bip39.mnemonicToSeed(mnemonic);
+  root = bip32.fromSeed(seed);
+} catch (error) {
+  console.error("\n❌ Error generating mnemonic:", error.message);
+  process.exit(1);
+}
 
-const btcAddress = payments.p2wpkh({
-  pubkey: btcChild.publicKey,
-  network: networks.bitcoin
-}).address;
+// Single-chain mode
+if (chain) {
+  try {
+    switch (chain.toLowerCase()) {
+      case "eth": {
+        const w = walletETH(seed, root);
+        console.log("ETH Address:", w.address);
+        console.log("ETH Private Key:", w.privateKey);
+        break;
+      }
+      case "btc": {
+        const w = walletBTC(seed, root);
+        console.log("BTC Address:", w.address);
+        console.log("BTC Private Key:", w.privateKey);
+        break;
+      }
+      case "sol": {
+        const w = walletSOL(seed);
+        console.log("SOL Address:", w.address);
+        console.log("SOL Private Key:", w.privateKey);
+        break;
+      }
+    }
+    console.log("\n🎉 Done!\n");
+    process.exit(0);
+  } catch (error) {
+    console.error(`\n❌ Error generating ${chain.toUpperCase()} wallet:`, error.message);
+    process.exit(1);
+  }
+}
 
-console.log("BTC (SegWit)");
-console.log("Address:", btcAddress);
-console.log("Private Key:", btcChild.toWIF(), "\n");
+// Generate all wallets
+try {
+  const btc = walletBTC(seed, root);
+  console.log("BTC (SegWit)");
+  console.log("Address:", btc.address);
+  console.log("Private Key:", btc.privateKey, "\n");
 
-// --------------------------------------------------------
-// 3. ETH (BIP44)
-// Path: m/44'/60'/0'/0/0
-// --------------------------------------------------------
-const ethPath = `m/44'/60'/0'/0/0`;
-const ethChild = root.derivePath(ethPath);
+  const eth = walletETH(seed, root);
+  console.log("ETH");
+  console.log("Address:", eth.address);
+  console.log("Private Key:", eth.privateKey, "\n");
 
-const ethPriv = ethers.hexlify(ethChild.privateKey);
-const ethWallet = new ethers.Wallet(ethPriv);
+  const sol = walletSOL(seed);
+  console.log("SOL");
+  console.log("Address:", sol.address);
+  console.log("Private Key:", sol.privateKey, "\n");
 
-console.log("ETH");
-console.log("Address:", ethWallet.address);
-console.log("Private Key:", ethPriv, "\n");
-
-// --------------------------------------------------------
-// 4. SOLANA (Phantom compatible)
-// Path: m/44'/501'/0'/0'
-// --------------------------------------------------------
-const solPath = `m/44'/501'/0'/0'`;
-const solDerived = deriveEd25519(solPath, seed.toString("hex"));
-
-const solKeypair = nacl.sign.keyPair.fromSeed(solDerived.key);
-const solPrivateKey = bs58.encode(solKeypair.secretKey);
-const solPubKey = new PublicKey(solKeypair.publicKey).toBase58();
-
-console.log("SOLANA");
-console.log("Address:", solPubKey);
-console.log("Private Key:", solPrivateKey, "\n");
-
-console.log("🎉 Done!\n");
-console.log("Contributions are welcome! \n\nhttps://github.com/shahbaz17/new-wallet\n\n");
+  console.log("🎉 Done!\n");
+  console.log("Contributions are welcome! \n\nhttps://github.com/shahbaz17/new-wallet\n");
+} catch (error) {
+  console.error("\n❌ Error generating wallets:", error.message);
+  process.exit(1);
+}
