@@ -1,6 +1,6 @@
 {
   "name": "new-wallet",
-  "version": "2.2.0",
+  "version": "2.2.1",
   "description": "Generate mnemonic phrase and BTC, ETH, and SOL wallets from that mnemonic phrase",
   "bin": {
     "new-wallet": "./index.js"
@@ -27,11 +27,9 @@
     "SOL",
     "Solana"
   ],
-  "author": {
-    "name": "Mohammad Shahbaz Alam",
-    "repository": "https://github.com/shahbaz17/new-wallet",
-    "issues": "https://github.com/shahbaz17/new-wallet/issues",
-    "website": "https://mdsbzalam.dev"
-  },
+  "repository": "https://github.com/shahbaz17/new-wallet",
+  "bugs": "https://github.com/shahbaz17/new-wallet/issues",
+  "homepage": "https://github.com/shahbaz17/new-wallet",
+  "author": "Mohammad Shahbaz Alam",
   "license": "MIT"
 }
