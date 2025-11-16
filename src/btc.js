@@ -5,6 +5,10 @@ export function walletBTC(seed, root) {
     // BTC 
     // Derivation Path: m/84'/0'/0'/0/0 (Native SegWit P2WPKH)
     // --------------------------------------------------------
+    if (!root) {
+        throw new Error("BIP32 root is required");
+    }
+
     const btcPath = `m/84'/0'/0'/0/0`;
     const btcChild = root.derivePath(btcPath);
 
@@ -12,6 +16,10 @@ export function walletBTC(seed, root) {
         pubkey: btcChild.publicKey,
         network: networks.bitcoin
     }).address;
+
+    if (!btcAddress) {
+        throw new Error("Failed to generate BTC address");
+    }
 
     return {
         address: btcAddress,
