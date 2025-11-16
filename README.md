@@ -1,6 +1,6 @@
 # new-wallet
 
-[![](https://img.shields.io/badge/version-2.2.0-blue.svg)](https://github.com/shahbaz17/new-wallet/releases/tag/v2.2.0)
+[![](https://img.shields.io/badge/version-2.2.2-blue.svg)](https://github.com/shahbaz17/new-wallet/releases/tag/v2.2.2)
 [![](https://img.shields.io/badge/license-MIT-green.svg)](https://github.com/shahbaz17/new-wallet/blob/main/LICENSE)
 
 Generate mnemonic phrase and BTC, ETH, and SOL wallets from that mnemonic phrase.
