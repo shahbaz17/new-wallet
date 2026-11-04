@@ -1,7 +1,6 @@
 import nacl from "tweetnacl";
 import bs58 from "bs58";
 import { derivePath as deriveEd25519 } from "ed25519-hd-key";
-import { PublicKey } from "@solana/web3.js";
 
 export function walletSOL(seed) {
     // --------------------------------------------------------
@@ -22,7 +21,7 @@ export function walletSOL(seed) {
 
     const solKeypair = nacl.sign.keyPair.fromSeed(solDerived.key);
     const solPrivateKey = bs58.encode(solKeypair.secretKey);
-    const solPubKey = new PublicKey(solKeypair.publicKey).toBase58();
+    const solPubKey = bs58.encode(solKeypair.publicKey);
 
     return {
         address: solPubKey,
