@@ -7,8 +7,9 @@ import * as ecc from "tiny-secp256k1";
 import { walletBTC } from "./src/btc.js";
 import { walletETH } from "./src/eth.js";
 import { walletSOL } from "./src/sol.js";
+import { promptHidden } from "./src/prompt.js";
 
-const VERSION = "2.2.2";
+const VERSION = "2.3.0";
 
 const HELP_TEXT = `
 new-wallet v${VERSION}
@@ -20,6 +21,8 @@ USAGE:
 
 OPTIONS:
   -c, --chain <chain>    Generate wallet for specific chain only (btc, eth, sol)
+  -i, --import          Import an existing mnemonic (prompted with hidden input,
+                        or piped via stdin) instead of generating a new one
   -h, --help            Show this help message
   -v, --version         Show version number
 
@@ -27,6 +30,7 @@ EXAMPLES:
   new-wallet              Generate wallets for all chains
   new-wallet -c btc       Generate Bitcoin wallet only
   new-wallet --chain eth  Generate Ethereum wallet only
+  new-wallet --import     Show wallets for an existing mnemonic
 
 ⚠️  SECURITY WARNING:
   - Never share your mnemonic or private keys
@@ -66,6 +70,23 @@ if (chain && !["btc", "eth", "sol"].includes(chain.toLowerCase())) {
   process.exit(1);
 }
 
+const importIdx = Math.max(args.indexOf("--import"), args.indexOf("-i"));
+const isImport = importIdx !== -1;
+if (isImport && args[importIdx + 1] && !args[importIdx + 1].startsWith("-")) {
+  console.error("\n❌ Error: --import does not take the mnemonic as an argument.");
+  console.error("   Run 'new-wallet --import' and enter it when prompted.\n");
+  process.exit(1);
+}
+
+let importedMnemonic;
+if (isImport) {
+  importedMnemonic = (await promptHidden("Enter mnemonic (input hidden): ")).replace(/\s+/g, " ");
+  if (!bip39.validateMnemonic(importedMnemonic)) {
+    console.error("\n❌ Error: Invalid mnemonic phrase.\n");
+    process.exit(1);
+  }
+}
+
 const bip32 = BIP32Factory(ecc);
 
 console.log("\n🥳 Your Self-Custodial Wallets are Ready...\n");
@@ -76,9 +97,13 @@ console.log("\n🥳 Your Self-Custodial Wallets are Ready...\n");
 let mnemonic, seed, root;
 
 try {
-  mnemonic = bip39.generateMnemonic(128);
-  console.log("Mnemonic:");
-  console.log(mnemonic, "\n");
+  if (isImport) {
+    mnemonic = importedMnemonic;
+  } else {
+    mnemonic = bip39.generateMnemonic(128);
+    console.log("Mnemonic:");
+    console.log(mnemonic, "\n");
+  }
 
   seed = await bip39.mnemonicToSeed(mnemonic);
   root = bip32.fromSeed(seed);

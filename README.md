@@ -1,6 +1,6 @@
 # new-wallet
 
-[![](https://img.shields.io/badge/version-2.2.2-blue.svg)](https://github.com/shahbaz17/new-wallet/releases/tag/2.2.2)
+[![](https://img.shields.io/badge/version-2.3.0-blue.svg)](https://github.com/shahbaz17/new-wallet/releases/tag/2.3.0)
 [![](https://img.shields.io/badge/license-MIT-green.svg)](https://github.com/shahbaz17/new-wallet/blob/main/LICENSE)
 
 Generate mnemonic phrase and BTC, ETH, and SOL wallets from that mnemonic phrase.
@@ -56,6 +56,15 @@ new-wallet --chain eth # ETH
 # Solana only
 new-wallet -c sol # SOL
 new-wallet --chain sol # SOL
+```
+
+### Import an Existing Mnemonic
+
+Show the addresses and private keys for a mnemonic you already have. You'll be prompted for it with hidden input, so it never lands in your shell history. Works with `--chain` too.
+
+```bash
+new-wallet --import # or -i
+new-wallet --import --chain eth
 ```
 
 ### Additional Options
