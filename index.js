@@ -9,7 +9,7 @@ import { walletETH } from "./src/eth.js";
 import { walletSOL } from "./src/sol.js";
 import { promptHidden } from "./src/prompt.js";
 
-const VERSION = "2.3.0";
+const VERSION = "2.3.1";
 
 const HELP_TEXT = `
 new-wallet v${VERSION}
